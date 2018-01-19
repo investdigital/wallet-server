@@ -1,6 +1,12 @@
 package com.oxchains.wallet.service;
+import com.oxchains.wallet.common.CoinType;
 import com.oxchains.wallet.common.ETHUtil;
 import com.oxchains.wallet.common.RestResp;
+import com.oxchains.wallet.entity.Balance;
+import com.oxchains.wallet.function.BalanceFunction.BalanceContext;
+import com.oxchains.wallet.function.BalanceFunction.BalanceStrategy;
+import com.oxchains.wallet.function.BalanceFunction.function.BalanceETH;
+import com.oxchains.wallet.function.BalanceFunction.function.BalanceIDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +15,8 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.Response;
+import org.web3j.protocol.core.methods.request.*;
+import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.http.HttpService;
 
@@ -70,6 +78,7 @@ public class WalletService {
         }
         return RestResp.fail();
     }
+    //
     public RestResp getTxInfo(String txHash){
         try {
             Web3j web3j = ethUtil.getWeb3j();
@@ -80,6 +89,7 @@ public class WalletService {
             return RestResp.fail();
         }
     }
+    //获取  nonce
     public RestResp getNonce(String address){
         try {
             Web3j web3j = ethUtil.getWeb3j();
@@ -91,22 +101,31 @@ public class WalletService {
             return RestResp.fail();
         }
     }
-    public RestResp getBalance(String address){
+    //获取余额
+    public RestResp getBalance(Balance balance){
         try {
             Web3j web3j = ethUtil.getWeb3j();
-            EthGetBalance send = web3j.ethGetBalance("", DefaultBlockParameterName.LATEST).send();
-            BigInteger bigInteger = send.getBalance();
-            return RestResp.success(bigInteger);
+            BalanceContext balanceContext = null;
+            if(balance.getType().toLowerCase().equals(CoinType.ETH.getName())){
+                balanceContext = new BalanceContext(new BalanceETH());
+            }
+            if(balance.getType().toLowerCase().equals(CoinType.IDT.getName())){
+                balanceContext = new BalanceContext(new BalanceIDT());
+            }
+            Balance balance1 = balanceContext.getBalance(balance, web3j);
+            return balance1 != null ? RestResp.success(balance):RestResp.fail();
         } catch (Exception e) {
             logger.error("get balance faild :",e.getMessage(),e);
             return RestResp.fail();
         }
     }
+    //获取订单状态
     public RestResp getStatus(String txhash){
         try {
             Web3j web3j = ethUtil.getWeb3j();
             EthGetTransactionReceipt send = web3j.ethGetTransactionReceipt(txhash).send();
-            return RestResp.success(send.getResult());
+            String status = send.getResult().getStatus();
+            return RestResp.success(status);
         } catch (Exception e) {
             logger.error("get balance faild :",e.getMessage(),e);
             return RestResp.fail();

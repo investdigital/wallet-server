@@ -1,5 +1,6 @@
 package com.oxchains.wallet.rest;
 import com.oxchains.wallet.common.RestResp;
+import com.oxchains.wallet.entity.Balance;
 import com.oxchains.wallet.service.WalletService;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +16,11 @@ import javax.validation.constraints.NotNull;
 public class WalletController {
     @Resource
     WalletService walletService;
-
     //get eth keyStore by a password
     @PostMapping("/getKeyStore")
     public RestResp getKeyStore(@NotNull(message = "password is null") @RequestParam String password){
         return walletService.getKeyStore(password);
     }
-
     //send tx to eth
     @PostMapping("/sendTx")
     public RestResp sendTx(@NotNull @RequestParam String tx){
@@ -29,8 +28,8 @@ public class WalletController {
     }
     //get blanace by address
     @PostMapping("/getBlanace")
-    public RestResp getBlanace(@NotNull @RequestParam String address){
-        return walletService.getBalance(address);
+    public RestResp getBlanace(@RequestBody Balance balance){
+        return walletService.getBalance(balance);
     }
     //get tx info by txHash
     @PostMapping("/getTxInfo")
@@ -40,5 +39,9 @@ public class WalletController {
     @PostMapping("/getStatus")
     public RestResp getStatus(@NotNull @RequestParam String txHash){
         return walletService.getStatus(txHash);
+    }
+    @PostMapping("/getNonce")
+    public RestResp getNonce(@NotNull @RequestParam String address){
+        return walletService.getNonce(address);
     }
 }
