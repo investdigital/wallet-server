@@ -13,20 +13,7 @@ target/
 *.iml
 *.ipr
 target
-### BackEnd ###
-BackEnd/.idea
-BackEnd/*.iws
-BackEnd/*.iml
-BackEnd/*.ipr
 
-### FrontEnd ###
-FrontEnd/.idea
-node_modules/
-FrontEnd/bundle.js
-FrontEnd/npm-debug.log
-.DS_Store
-
-### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
