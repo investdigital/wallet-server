@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/investdigital-wallet.iml" filepath="$PROJECT_DIR$/investdigital-wallet.iml" />
+      <module fileurl="file://E:\fabric\oxchainsWallet\springboot-data-Demo.iml" filepath="E:\fabric\oxchainsWallet\springboot-data-Demo.iml" />
+    </modules>
+  </component>
+</project>
