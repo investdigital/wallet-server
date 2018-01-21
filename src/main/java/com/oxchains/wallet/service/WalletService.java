@@ -93,7 +93,7 @@ public class WalletService {
     public RestResp getNonce(String address){
         try {
             Web3j web3j = ethUtil.getWeb3j();
-            EthGetTransactionCount count = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).send();
+            EthGetTransactionCount count = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).send();
             BigInteger transactionCount = count.getTransactionCount();
             return RestResp.success(transactionCount);
         } catch (Exception e) {
