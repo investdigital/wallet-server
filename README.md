@@ -1,1 +1,2 @@
-# investdigital-wallet-BackEnd
+# Wallet Server
+investdigital wallet backend service.
