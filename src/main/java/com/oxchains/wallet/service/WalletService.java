@@ -36,6 +36,7 @@ public class WalletService {
     private String path;
     @Resource
     private ETHUtil ethUtil;
+    //get keystore with password
     public RestResp getKeyStore(String password){
         InputStream inputStream = null;
         try{
@@ -62,6 +63,7 @@ public class WalletService {
         }
         return RestResp.fail("网络错误");
     }
+    //send tx to chain
     public RestResp sendTx(String tx){
         try {
             Web3j web3j = ethUtil.getWeb3j();
@@ -78,18 +80,22 @@ public class WalletService {
         }
         return RestResp.fail();
     }
-    //
+    //get tx info
     public RestResp getTxInfo(String txHash){
         try {
             Web3j web3j = ethUtil.getWeb3j();
             EthTransaction send = web3j.ethGetTransactionByHash(txHash).send();
-            return RestResp.success(send.getResult());
+            org.web3j.protocol.core.methods.response.Transaction result = send.getResult();
+            if(null == result){
+                return RestResp.fail("交易不存在");
+            }
+            return RestResp.success(result);
         } catch (Exception e) {
             logger.error("get tx info :",e.getMessage(),e);
             return RestResp.fail();
         }
     }
-    //获取  nonce
+    //get tx  nonce by address
     public RestResp getNonce(String address){
         try {
             Web3j web3j = ethUtil.getWeb3j();
@@ -101,7 +107,7 @@ public class WalletService {
             return RestResp.fail();
         }
     }
-    //获取余额
+    //get address balance
     public RestResp getBalance(Balance balance){
         try {
             Web3j web3j = ethUtil.getWeb3j();
@@ -119,7 +125,7 @@ public class WalletService {
             return RestResp.fail();
         }
     }
-    //获取订单状态
+    //get tx status by txHash
     public RestResp getStatus(String txhash){
         try {
             Web3j web3j = ethUtil.getWeb3j();
