@@ -27,21 +27,22 @@ public class WalletController {
         return walletService.sendTx(tx);
     }
     //get blanace by address
-    @PostMapping("/getBlanace")
-    public RestResp getBlanace(@RequestBody Balance balance){
-        return walletService.getBalance(balance);
+    @GetMapping("/getBlanace/{address}/{type}")
+    public RestResp getBlanace(@PathVariable String address,@PathVariable String type){
+        return walletService.getBalance(address,type);
     }
     //get tx info by txHash
-    @PostMapping("/getTxInfo")
-    public RestResp getTxInfo(@NotNull @RequestParam String txHash){
+    @GetMapping("/getTxInfo/{txHash}")
+    public RestResp getTxInfo(@NotNull @PathVariable String txHash){
         return walletService.getTxInfo(txHash);
     }
-    @PostMapping("/getStatus")
-    public RestResp getStatus(@NotNull @RequestParam String txHash){
+    @GetMapping("/getStatus/{txHash}")
+    public RestResp getStatus(@NotNull @PathVariable String txHash){
         return walletService.getStatus(txHash);
     }
-    @PostMapping("/getNonce")
-    public RestResp getNonce(@NotNull @RequestParam String address){
+    @GetMapping("/getNonce/{address}")
+    public RestResp getNonce(@PathVariable String address){
         return walletService.getNonce(address);
     }
+
 }

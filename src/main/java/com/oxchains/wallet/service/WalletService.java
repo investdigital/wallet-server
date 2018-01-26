@@ -108,18 +108,18 @@ public class WalletService {
         }
     }
     //get address balance
-    public RestResp getBalance(Balance balance){
+    public RestResp getBalance(String address,String type){
         try {
             Web3j web3j = ethUtil.getWeb3j();
             BalanceContext balanceContext = null;
-            if(balance.getType().toLowerCase().equals(CoinType.ETH.getName())){
+            if(type.toLowerCase().equals(CoinType.ETH.getName())){
                 balanceContext = new BalanceContext(new BalanceETH());
             }
-            if(balance.getType().toLowerCase().equals(CoinType.IDT.getName())){
+            if(type.toLowerCase().equals(CoinType.IDT.getName())){
                 balanceContext = new BalanceContext(new BalanceIDT());
             }
-            Balance balance1 = balanceContext.getBalance(balance, web3j);
-            return balance1 != null ? RestResp.success(balance):RestResp.fail();
+            BigInteger balance = balanceContext.getBalance(address, web3j);
+            return balance != null ? RestResp.success(balance):RestResp.fail();
         } catch (Exception e) {
             logger.error("get balance faild :",e.getMessage(),e);
             return RestResp.fail();

@@ -17,12 +17,11 @@ import java.math.BigInteger;
 public class BalanceETH implements BalanceStrategy {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
-    public Balance getBalance(Balance balance, Web3j web3j) {
+    public BigInteger getBalance(String address, Web3j web3j) {
         try {
-            EthGetBalance send = web3j.ethGetBalance(balance.getAddress(), DefaultBlockParameterName.LATEST).send();
+            EthGetBalance send = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
             BigInteger bigInteger = send.getBalance();
-            balance.setValue(bigInteger);
-            return balance;
+            return bigInteger;
         } catch (IOException e) {
             logger.error("get blanace faild:",e.getMessage(),e);
         }
