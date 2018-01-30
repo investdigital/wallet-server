@@ -15,46 +15,64 @@ import javax.annotation.Resource;
 public class BitCoinController {
     @Resource
     private BitcoinService bitcoinService;
-    @GetMapping("/getBalanceByAccount/{accountName}")
-    public RestResp getBalanceByAccount(@PathVariable String accountName){
-        double balance = bitcoinService.getBalanceByAccount(accountName);
-        return RestResp.success(balance);
-    }
     @GetMapping("/getBalanceByAddress/{address}")
     public RestResp getBalanceByAddress(@PathVariable String address){
-        double balance = bitcoinService.getBalanceByAddress(address);
-        return RestResp.success(balance);
+        if(this.checkAddress(address)){
+            double balance = bitcoinService.getBalanceByAddress(address);
+            return RestResp.success(balance);
+        }
+        return RestResp.fail("invalid address");
     }
     @GetMapping("/getStatus/{txHash}")
     public RestResp getStatus(@PathVariable String txHash){
-        return bitcoinService.getStatus(txHash);
-    }
-    @PostMapping("/sendFrom")
-    public RestResp sendFrom(@RequestBody BTCTransaction btcTransaction){
-        return bitcoinService.sendFrom(btcTransaction);
+        if(this.checkTxHash(txHash)){
+            return bitcoinService.getStatus(txHash);
+        }
+        return RestResp.fail("invalid txHash");
     }
     @PostMapping("/sendTx")
     public RestResp sendTx(@RequestParam String  txStr){
+        if(txStr == null){
+            return RestResp.fail("txStr is null");
+        }
         return bitcoinService.sendTx(txStr);
-    }
-    @PostMapping("/sendToAddress")
-    public RestResp sendToAddress(@RequestBody BTCTransaction btcTransaction){
-        return bitcoinService.sendToAddress(btcTransaction);
     }
     @PostMapping("/initAddress")
     public RestResp initAddress(@RequestParam String address,@RequestParam String publicKey){
-        return bitcoinService.initAddress(address,publicKey);
+        if(this.checkAddress(address) && publicKey != null){
+            return bitcoinService.initAddress(address,publicKey);
+        }
+        return RestResp.fail("invalid address or publicKey");
     }
     @GetMapping("/getTxInfo/{txHash}")
     public RestResp getTxInfo(@PathVariable String txHash){
-        return bitcoinService.getTxInfo(txHash);
+        if(this.checkTxHash(txHash)){
+            return bitcoinService.getTxInfo(txHash);
+        }
+        return RestResp.fail("invalid txHash");
     }
     @GetMapping("/getUnspents/{address}")
     public RestResp getUnspents(@PathVariable  String address){
-        return bitcoinService.getUnspents(address);
+        if(this.checkAddress(address)){
+            return bitcoinService.getUnspents(address);
+        }
+        return RestResp.fail("invalid address");
     }
     @GetMapping("/getAllPrice")
     public RestResp getNonce(){
         return bitcoinService.getBtcPrice();
+    }
+
+    private boolean checkAddress(String address){
+        if(address == null || address.length() != 34){
+            return false;
+        }
+        return true;
+    }
+    private boolean checkTxHash(String txHash){
+        if(txHash == null || txHash.length() != 64){
+            return false;
+        }
+        return true;
     }
 }

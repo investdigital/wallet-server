@@ -14,13 +14,16 @@ public class RestResp {
         this.data = data;
     }
     public static RestResp success(Object data){
-        return new RestResp(1,"",data);
+        return new RestResp(1,"success",data);
+    }
+    public static RestResp success(){
+        return new RestResp(1,"success",null);
     }
     public static RestResp fail(String message){
         return new RestResp(-1,message,null);
     }
     public static RestResp fail(){
-        return new RestResp(-1,null,null);
+        return new RestResp(-1,"fail",null);
     }
 
 }

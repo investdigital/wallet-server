@@ -1,12 +1,23 @@
 package com.oxchains.wallet.service;
+import cn.jiguang.common.ClientConfig;
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
+import cn.jpush.api.JPushClient;
+import cn.jpush.api.push.PushResult;
+import cn.jpush.api.push.model.Platform;
+import cn.jpush.api.push.model.PushPayload;
+import cn.jpush.api.push.model.audience.Audience;
+import cn.jpush.api.push.model.notification.Notification;
 import com.oxchains.wallet.common.CoinType;
 import com.oxchains.wallet.common.ETHUtil;
 import com.oxchains.wallet.common.RestResp;
 import com.oxchains.wallet.entity.Balance;
+import com.oxchains.wallet.entity.TouchInfo;
 import com.oxchains.wallet.function.BalanceFunction.BalanceContext;
 import com.oxchains.wallet.function.BalanceFunction.BalanceStrategy;
 import com.oxchains.wallet.function.BalanceFunction.function.BalanceETH;
 import com.oxchains.wallet.function.BalanceFunction.function.BalanceIDT;
+import com.oxchains.wallet.repo.TouchInfoRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +30,7 @@ import org.web3j.protocol.core.methods.request.*;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.http.HttpService;
+import rx.Subscription;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -26,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.util.List;
+
 /**
  * Created by xuqi on 2018/1/17.
  */
@@ -36,6 +50,8 @@ public class WalletService {
     private String path;
     @Resource
     private ETHUtil ethUtil;
+    @Resource
+    private TouchInfoRepo touchInfoRepo;
     //get keystore with password
     public RestResp getKeyStore(String password){
         InputStream inputStream = null;
@@ -101,7 +117,9 @@ public class WalletService {
             Web3j web3j = ethUtil.getWeb3j();
             EthGetTransactionCount count = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).send();
             BigInteger transactionCount = count.getTransactionCount();
-            return RestResp.success(transactionCount);
+            int i = transactionCount.intValue()+1;
+            String s = "0x"+Integer.toHexString(i);
+            return RestResp.success(s);
         } catch (Exception e) {
             e.printStackTrace();
             return RestResp.fail();
@@ -137,5 +155,16 @@ public class WalletService {
             return RestResp.fail();
         }
     }
-
+    public RestResp initDevice(TouchInfo touchInfo){
+        try {
+            TouchInfo save = touchInfoRepo.save(touchInfo);
+            if(save != null){
+                return RestResp.success("");
+            }
+            return RestResp.fail("init deviced faild");
+        } catch (Exception e) {
+            logger.error("init deviced faild :{}",e.getMessage(),e);
+            return RestResp.fail("init deviced faild");
+        }
+    }
 }

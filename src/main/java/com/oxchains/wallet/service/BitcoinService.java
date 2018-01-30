@@ -57,22 +57,6 @@ public class BitcoinService {
             return RestResp.fail();
         }
     }
-    /**
-     * get account's balance
-     *
-     * @param accountName
-     * @return
-     */
-    public double getBalanceByAccount(String accountName) {
-        double balance = 0.0d;
-        try {
-            balance = this.getClient().getBalance(accountName);
-            return balance;
-        } catch (Exception e) {
-            log.error("获取余额失败", e);
-            return balance;
-        }
-    }
     public double getBalanceByAddress(String address) {
          double[] balance = {0.0d};
         try {
@@ -99,17 +83,6 @@ public class BitcoinService {
             return RestResp.success(0);
         }
     }
-    public RestResp sendFrom(BTCTransaction btcTransaction){
-        try {
-            String s = this.getClient().sendFrom(btcTransaction.getAccountName(), btcTransaction.getAddress(), btcTransaction.getAmount());
-
-
-            return RestResp.success(s);
-        } catch (BitcoinRpcException e) {
-            log.error("send tx faild :",e.getCause(),e);
-            return RestResp.fail();
-        }
-    }
     public RestResp sendTx(String  txStr){
         try {
             String s = this.getClient().sendRawTransaction(txStr);
@@ -133,16 +106,6 @@ public class BitcoinService {
                 return RestResp.success(unspentList);
             }
             return RestResp.fail();
-        } catch (BitcoinRpcException e) {
-            log.error("send tx faild :",e.getCause(),e);
-            return RestResp.fail();
-        }
-    }
-    public RestResp sendToAddress(BTCTransaction btcTransaction){
-        try {
-            BitcoinJSONRPCClient client = this.getClient();
-            String s = this.getClient().sendToAddress(btcTransaction.getAddress(),btcTransaction.getAmount());
-            return RestResp.success(s);
         } catch (BitcoinRpcException e) {
             log.error("send tx faild :",e.getCause(),e);
             return RestResp.fail();
