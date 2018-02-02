@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.Response;
 import org.web3j.protocol.core.methods.request.*;
@@ -87,14 +88,21 @@ public class WalletService {
             Response.Error error = send.getError();
             if(send.getTransactionHash() == null){
                 if(error != null){
-                    return RestResp.fail(error.getMessage());
+                    String message = error.getMessage();
+                    if(message.startsWith("replacement")||message.startsWith("known")){
+                        return RestResp.fail(-2,error.getMessage());
+                    }
+                    if(message.startsWith("insufficient funds for gas * price")){
+                        return RestResp.fail("余额不足");
+                    }
+                        return RestResp.fail(error.getMessage());
                 }
             }
             return RestResp.success(send.getTransactionHash());
         } catch (Exception e) {
             logger.error("send tx faild :",e.getMessage(),e);
+            return RestResp.fail();
         }
-        return RestResp.fail();
     }
     //get tx info
     public RestResp getTxInfo(String txHash){
@@ -117,8 +125,14 @@ public class WalletService {
             Web3j web3j = ethUtil.getWeb3j();
             EthGetTransactionCount count = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).send();
             BigInteger transactionCount = count.getTransactionCount();
-            int i = transactionCount.intValue()+1;
-            String s = "0x"+Integer.toHexString(i);
+            int i = transactionCount.intValue();
+            String s = Integer.toHexString(i);
+            if(s.length() % 2 == 0){
+                s = "0x"+s;
+            }
+            else{
+                s = "0x0"+s;
+            }
             return RestResp.success(s);
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,7 +150,7 @@ public class WalletService {
             if(type.toLowerCase().equals(CoinType.IDT.getName())){
                 balanceContext = new BalanceContext(new BalanceIDT());
             }
-            BigInteger balance = balanceContext.getBalance(address, web3j);
+            String balance = balanceContext.getBalance(address, web3j);
             return balance != null ? RestResp.success(balance):RestResp.fail();
         } catch (Exception e) {
             logger.error("get balance faild :",e.getMessage(),e);
@@ -147,9 +161,25 @@ public class WalletService {
     public RestResp getStatus(String txhash){
         try {
             Web3j web3j = ethUtil.getWeb3j();
-            EthGetTransactionReceipt send = web3j.ethGetTransactionReceipt(txhash).send();
-            String status = send.getResult().getStatus();
-            return RestResp.success(status);
+
+            EthTransaction send = web3j.ethGetTransactionByHash(txhash).send();
+            org.web3j.protocol.core.methods.response.Transaction result = send.getResult();
+            //交易详情不存在 交易不存在
+            if(null == result){
+                return RestResp.fail("交易不存在");
+            }
+            //交易存在 blocknumber为null 交易未完成
+            if(result.getBlockNumber() == null){
+                return RestResp.success("0");
+            }
+            //交易存在 blocknumber存在 状态为1 交易完成
+            EthGetTransactionReceipt send1 = web3j.ethGetTransactionReceipt(txhash).send();
+            String status = send1.getResult().getStatus();
+            if(status.equals("0x1")){
+                RestResp.success("1");
+            }
+            //交易存在 blocknumber存在 状态为0 交易失败
+            return RestResp.fail("交易失败");
         } catch (Exception e) {
             logger.error("get balance faild :",e.getMessage(),e);
             return RestResp.fail();
@@ -159,7 +189,7 @@ public class WalletService {
         try {
             TouchInfo save = touchInfoRepo.save(touchInfo);
             if(save != null){
-                return RestResp.success("");
+                return RestResp.success();
             }
             return RestResp.fail("init deviced faild");
         } catch (Exception e) {

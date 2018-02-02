@@ -14,7 +14,7 @@ public class BalanceContext {
     public BalanceContext(BalanceStrategy balanceStrategy) {
         this.balanceStrategy = balanceStrategy;
     }
-    public BigInteger getBalance(String address, Web3j web3j){
+    public String getBalance(String address, Web3j web3j){
         return balanceStrategy.getBalance(address,web3j);
     };
 }

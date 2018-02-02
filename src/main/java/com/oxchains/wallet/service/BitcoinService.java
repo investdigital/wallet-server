@@ -1,11 +1,9 @@
 package com.oxchains.wallet.service;
+import com.alibaba.fastjson.JSONObject;
 import com.oxchains.bitcoin.rpcclient.BitcoinJSONRPCClient;
 import com.oxchains.bitcoin.rpcclient.BitcoinRpcException;
 import com.oxchains.bitcoin.rpcclient.BitcoindRpcClient;
-import com.oxchains.wallet.common.BitcoinConfig;
-import com.oxchains.wallet.common.HttpUtils;
-import com.oxchains.wallet.common.JsonUtil;
-import com.oxchains.wallet.common.RestResp;
+import com.oxchains.wallet.common.*;
 import com.oxchains.wallet.entity.BTCTransaction;
 import com.oxchains.wallet.entity.Btc.BlockChainInfo;
 import com.oxchains.wallet.entity.DigitalPrice;
@@ -130,7 +128,7 @@ public class BitcoinService {
     public RestResp getBtcPrice() {
         //获取btc的行情
         DigitalPrice digitalPrice = new DigitalPrice();
-        String url = "https://blockchain.info/ticker";
+        /*String url = "https://blockchain.info/ticker";
         String result = HttpUtils.sendGet(url);
         BlockChainInfo blockChainInfo = (BlockChainInfo) JsonUtil.fromJson(result, BlockChainInfo.class);
         digitalPrice.setBtc_usdt(blockChainInfo.getUSD().getLast());
@@ -154,7 +152,16 @@ public class BitcoinService {
                 digitalPrice.setEth_usdt(etcPrice);
                 return RestResp.success(digitalPrice);
             }
-        }
+        }*/
+        digitalPrice.setBtc_usdt(PriceListening.btc);
+        digitalPrice.setEth_usdt(PriceListening.eth);
         return RestResp.success(digitalPrice);
+    }
+
+    public static void main(String[] args) {
+        String url = "https://api.coinmarketcap.com/v1/ticker/bitcoin/";
+        String s = HttpUtils.sendGet(url);
+        List<JSONObject> jsonObjects = JsonUtil.jsonToList(s, JSONObject.class);
+        System.out.println(jsonObjects.get(0).get("price_usd"));
     }
 }

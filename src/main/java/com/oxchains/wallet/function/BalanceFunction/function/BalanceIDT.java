@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 public class BalanceIDT implements BalanceStrategy{
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
-    public BigInteger getBalance(String address, Web3j web3j){
+    public String getBalance(String address, Web3j web3j){
         try {
             Function function = new Function("balanceOf",
                     Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(address)),
@@ -34,7 +34,7 @@ public class BalanceIDT implements BalanceStrategy{
             EthCall ethCall1 = web3j.ethCall(Transaction.createEthCallTransaction("0x17Bc58b788808DaB201a9A90817fF3C168BF3d61", CoinType.IDT.getUrl(), encodedFunction), DefaultBlockParameterName.LATEST).sendAsync().get();
             String value = ethCall1.getValue().substring(2);
             BigInteger bigInteger = new BigInteger(value, 16);
-            return bigInteger;
+            return bigInteger.toString();
         } catch (Exception e) {
             logger.error("get blanace idt faild:",e.getMessage(),e);
             return null;

@@ -37,14 +37,18 @@ public class BlockEventListening implements ApplicationListener<ContextRefreshed
     private String masterSecret;
     @Value("${jiguang.push.AppKey}")
     private String appKey;
-
+    private Subscription subscription = null;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         Web3j web3j = ethUtil.getWeb3j();
         this.BlockEventFunction(web3j);
     }
     private void BlockEventFunction(Web3j web3j){
-        Subscription subscription = web3j.blockObservable(true).take(1).subscribe(ethBlock -> {
+        if(subscription != null && !subscription.isUnsubscribed()){
+            subscription.unsubscribe();
+            subscription = null;
+        }
+         subscription = web3j.blockObservable(true).take(1).subscribe(ethBlock -> {
             EthBlock.Block block = ethBlock.getBlock();
             List<EthBlock.TransactionResult> transactions = block.getTransactions();
             transactions.stream().forEach(transactionResult -> {
@@ -60,6 +64,23 @@ public class BlockEventListening implements ApplicationListener<ContextRefreshed
             });
             this.BlockEventFunction(web3j);
         });
+    }
+    public int findAllThreads() {
+        ThreadGroup group = Thread.currentThread().getThreadGroup();
+        ThreadGroup topGroup = group;
+        // 遍历线程组树，获取根线程组
+        while (group != null) {
+            topGroup = group;
+            group = group.getParent();
+        }
+        // 激活的线程数加倍
+        int estimatedSize = topGroup.activeCount() * 2;
+        Thread[] slacks = new Thread[estimatedSize];
+        //获取根线程组的所有线程
+        int actualSize = topGroup.enumerate(slacks);
+        Thread[] threads = new Thread[actualSize];
+        System.arraycopy(slacks, 0, threads, 0, actualSize);
+        return threads.length;
     }
 
     private PushResult push(org.web3j.protocol.core.methods.response.Transaction transaction){

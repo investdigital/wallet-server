@@ -58,6 +58,7 @@ public class BitCoinController {
         }
         return RestResp.fail("invalid address");
     }
+    //获取价格行情
     @GetMapping("/getAllPrice")
     public RestResp getNonce(){
         return bitcoinService.getBtcPrice();

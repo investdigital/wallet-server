@@ -22,6 +22,9 @@ public class RestResp {
     public static RestResp fail(String message){
         return new RestResp(-1,message,null);
     }
+    public static RestResp fail(int status,String message){
+        return new RestResp(status,message,null);
+    }
     public static RestResp fail(){
         return new RestResp(-1,"fail",null);
     }
