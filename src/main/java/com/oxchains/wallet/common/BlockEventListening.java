@@ -1,11 +1,15 @@
 package com.oxchains.wallet.common;
 import cn.jiguang.common.ClientConfig;
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
 import cn.jpush.api.JPushClient;
+import cn.jpush.api.device.TagAliasResult;
 import cn.jpush.api.push.PushResult;
 import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.Notification;
+import com.oxchains.wallet.entity.EthTxInfo;
 import com.oxchains.wallet.entity.TouchInfo;
 import com.oxchains.wallet.repo.TouchInfoRepo;
 import org.slf4j.Logger;
@@ -23,27 +27,24 @@ import java.util.List;
 import static javax.accessibility.AccessibleRole.ALERT;
 
 /**
- * Created by xuqi on 2018/1/30.
+ * Created by huohuo on 2018/1/30.
  */
 @Component
 public class BlockEventListening implements ApplicationListener<ContextRefreshedEvent>{
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Resource
     private JPushClient jPushClient;
     @Resource
     private TouchInfoRepo touchInfoRepo;
     @Resource
-    private ETHUtil ethUtil;
-    @Value("${jiguang.push.MasterSecret}")
-    private String masterSecret;
-    @Value("${jiguang.push.AppKey}")
-    private String appKey;
+    private Web3j web3j;
+
     private Subscription subscription = null;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        Web3j web3j = ethUtil.getWeb3j();
-        this.BlockEventFunction(web3j);
+        this.BlockEventFunction();
     }
-    private void BlockEventFunction(Web3j web3j){
+    private void BlockEventFunction(){
         if(subscription != null && !subscription.isUnsubscribed()){
             subscription.unsubscribe();
             subscription = null;
@@ -55,65 +56,30 @@ public class BlockEventListening implements ApplicationListener<ContextRefreshed
                 org.web3j.protocol.core.methods.response.Transaction o = (org.web3j.protocol.core.methods.response.Transaction) transactionResult.get();
                 TouchInfo byAddress = touchInfoRepo.findByAddress(o.getTo());
                 if(byAddress != null){
-                    //推送
-                    PushResult push = this.push(o);
+                    EthTxInfo ethTxInfo = new EthTxInfo();
+                    ethTxInfo.set(o);
+                    PushResult push = this.push(ethTxInfo,byAddress.getRegistrationID());
                     if(push.statusCode == 1){
                         logger.info("push success");
                     }
                 }
             });
-            this.BlockEventFunction(web3j);
+            this.BlockEventFunction();
         });
     }
-    public int findAllThreads() {
-        ThreadGroup group = Thread.currentThread().getThreadGroup();
-        ThreadGroup topGroup = group;
-        // 遍历线程组树，获取根线程组
-        while (group != null) {
-            topGroup = group;
-            group = group.getParent();
-        }
-        // 激活的线程数加倍
-        int estimatedSize = topGroup.activeCount() * 2;
-        Thread[] slacks = new Thread[estimatedSize];
-        //获取根线程组的所有线程
-        int actualSize = topGroup.enumerate(slacks);
-        Thread[] threads = new Thread[actualSize];
-        System.arraycopy(slacks, 0, threads, 0, actualSize);
-        return threads.length;
-    }
-
-    private PushResult push(org.web3j.protocol.core.methods.response.Transaction transaction){
+    private PushResult push(EthTxInfo ethTxInfo,String registrationID){
         try {
-            JPushClient jpushClient = this.getjPushClient();
-            //快捷地构建推送对象：所有平台，所有设备，内容为 ALERT 的通知。
-            PushPayload payload = PushPayload.alertAll("alert");
-            //构建推送对象：所有平台，推送目标是别名为 "alias1"，通知内容为 ALERT。
-            PushPayload payload1 = PushPayload.newBuilder()
-                    .setPlatform(Platform.all())
-                    .setAudience(Audience.alias("alias1"))
-                    .setNotification(Notification.alert(ALERT))
-                    .build();
-            //构建推送对象：平台是 Android，目标是 tag 为 "tag1" 的设备，内容是 Android 通知 ALERT，并且标题为 TITLE。
-            PushPayload.newBuilder()
-                    .setPlatform(Platform.android())
-                    .setAudience(Audience.tag("tag1"))
-                    .setNotification(Notification.android("alert", "title", null))
-                    .build();
-
-
-            PushResult result = jpushClient.sendPush(payload);
-            return result;
+            PushResult pushResult = jPushClient.sendAndroidMessageWithRegistrationID("", JsonUtil.toJson(ethTxInfo), registrationID);
+            return pushResult;
         } catch (Exception e) {
             logger.error("push faild:{}",e.getMessage(),e);
             return null;
         }
     }
-    private JPushClient getjPushClient(){
-        if(this.jPushClient == null){
-            this.jPushClient = new JPushClient(masterSecret, appKey, null, ClientConfig.getInstance());
-            return this.jPushClient;
-        }
-        return this.jPushClient;
-    }
+    /*public static void main(String[] args) throws APIConnectionException, APIRequestException {
+        JPushClient jPushClient = new JPushClient("5efd487f203c711857786fcb","562b0cec8614a3ff48228735",null, ClientConfig.getInstance());
+        PushResult pushResult = jPushClient.sendAndroidMessageWithRegistrationID("touchWalet system message", "收到了啊", "190e35f7e04f0c0a505");
+        System.out.println(pushResult);
+        jPushClient.close();
+    }*/
 }

@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
 /**
- * Created by xuqi on 2018/1/29.
+ * Created by huohuo on 2018/1/29.
  */
 @Entity
 @Data
@@ -19,6 +19,7 @@ public class TouchInfo {
     @NotNull(message = "faild: IMEI is null")
     private String imei; //设备编号
     @NotNull(message = "faild: Device type is null")
-    private String type; //设备类型 Android
-
+    private String type; //设备类型 Android Ios
+    @NotNull(message = "faild: RegistrationID  is null")
+    private String RegistrationID;
  }

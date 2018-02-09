@@ -4,11 +4,7 @@ import com.oxchains.bitcoin.rpcclient.BitcoinJSONRPCClient;
 import com.oxchains.bitcoin.rpcclient.BitcoinRpcException;
 import com.oxchains.bitcoin.rpcclient.BitcoindRpcClient;
 import com.oxchains.wallet.common.*;
-import com.oxchains.wallet.entity.BTCTransaction;
-import com.oxchains.wallet.entity.Btc.BlockChainInfo;
 import com.oxchains.wallet.entity.DigitalPrice;
-import com.oxchains.wallet.entity.Eth.EthPrice;
-import com.oxchains.wallet.entity.Eth.EthPriceDetail;
 import com.oxchains.wallet.entity.Unspent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Created by xuqi on 2018/1/22.
+ * Created by huohuo on 2018/1/22.
  */
 @Service
 @Slf4j
@@ -128,40 +124,8 @@ public class BitcoinService {
     public RestResp getBtcPrice() {
         //获取btc的行情
         DigitalPrice digitalPrice = new DigitalPrice();
-        /*String url = "https://blockchain.info/ticker";
-        String result = HttpUtils.sendGet(url);
-        BlockChainInfo blockChainInfo = (BlockChainInfo) JsonUtil.fromJson(result, BlockChainInfo.class);
-        digitalPrice.setBtc_usdt(blockChainInfo.getUSD().getLast());
-        digitalPrice.setBtc_cny(blockChainInfo.getCNY().getLast());
-        //获取以太币的行情
-        String etcUrl = "https://api.huobi.pro/market/history/kline?symbol=ethusdt&period=1min&size=1";
-        String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-        String s = HttpUtils.sendGet(etcUrl, userAgent);
-        EthPrice ethPrice = JsonUtil.jsonToEntity(s, EthPrice.class);
-        List<EthPriceDetail> ethPriceDetails = JsonUtil.objectToList(ethPrice.getData(), EthPriceDetail.class);
-        if(ethPriceDetails != null || ethPriceDetails.size() >0 ){
-            Double etcPrice = 0d;
-            EthPriceDetail ethPriceDetail = ethPriceDetails.get(0);
-            if(ethPriceDetail.getOpen() != null && ethPriceDetail.getClose() != null){
-                etcPrice = (ethPriceDetail.getClose()+ethPriceDetail.getOpen())/2;
-                digitalPrice.setEth_usdt(etcPrice);
-                return RestResp.success(digitalPrice);
-            }
-            if(ethPriceDetail.getOpen() != null || ethPriceDetail.getClose() != null){
-                etcPrice = ethPriceDetail.getOpen()!=null?ethPriceDetail.getOpen():ethPriceDetail.getClose();
-                digitalPrice.setEth_usdt(etcPrice);
-                return RestResp.success(digitalPrice);
-            }
-        }*/
         digitalPrice.setBtc_usdt(PriceListening.btc);
         digitalPrice.setEth_usdt(PriceListening.eth);
         return RestResp.success(digitalPrice);
-    }
-
-    public static void main(String[] args) {
-        String url = "https://api.coinmarketcap.com/v1/ticker/bitcoin/";
-        String s = HttpUtils.sendGet(url);
-        List<JSONObject> jsonObjects = JsonUtil.jsonToList(s, JSONObject.class);
-        System.out.println(jsonObjects.get(0).get("price_usd"));
     }
 }

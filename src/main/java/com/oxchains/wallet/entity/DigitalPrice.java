@@ -3,7 +3,7 @@ package com.oxchains.wallet.entity;
 import lombok.Data;
 
 /**
- * Created by xuqi on 2018/1/26.
+ * Created by huohuo on 2018/1/26.
  */
 @Data
 public class DigitalPrice {

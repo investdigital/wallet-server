@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigInteger;
 
 /**
- * Created by xuqi on 2018/1/19.
+ * Created by huohuo on 2018/1/19.
  */
 @Data
 public class Balance {

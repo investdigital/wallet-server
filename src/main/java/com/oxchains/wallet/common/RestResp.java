@@ -1,7 +1,7 @@
 package com.oxchains.wallet.common;
 
 /**
- * Created by xuqi on 2018/1/17.
+ * Created by huohuo on 2018/1/17.
  */
 public class RestResp {
     public final int status;

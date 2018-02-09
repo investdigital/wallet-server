@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Created by xuqi on 2018/1/19.
+ * Created by huohuo on 2018/1/19.
  */
 public class BalanceETH implements BalanceStrategy {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

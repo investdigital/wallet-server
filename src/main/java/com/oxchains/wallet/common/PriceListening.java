@@ -16,7 +16,7 @@ public class PriceListening {
     public static double eth = 0d;
     private String btc_url = "https://api.coinmarketcap.com/v1/ticker/bitcoin/";
     private String eth_url = "https://api.coinmarketcap.com/v1/ticker/ethereum/";
-    @Scheduled(cron = "*/6 * * * * ?")
+    @Scheduled(cron = "*/30 * * * * ?")
     public void listening(){
         String btcStr = HttpUtils.sendGet(btc_url);
         List<JSONObject> btcs = JsonUtil.jsonToList(btcStr, JSONObject.class);

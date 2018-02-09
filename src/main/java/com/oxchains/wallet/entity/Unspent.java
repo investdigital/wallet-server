@@ -4,7 +4,7 @@ import com.oxchains.bitcoin.rpcclient.BitcoindRpcClient;
 import lombok.Data;
 
 /**
- * Created by xuqi on 2018/1/24.
+ * Created by huohuo on 2018/1/24.
  */
 @Data
 public class Unspent {

@@ -6,7 +6,7 @@ import org.web3j.protocol.Web3j;
 import java.math.BigInteger;
 
 /**
- * Created by xuqi on 2018/1/19.
+ * Created by huohuo on 2018/1/19.
  */
 public class BalanceContext {
     private BalanceStrategy balanceStrategy;
